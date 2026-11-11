@@ -1,0 +1,413 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.unipile.com/v2/YOUR_UNIPILE_ACCOUNT_ID/users/me/relation-requests",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "received"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e2787629-c505-462b-9e12-3f27bc7c10cb",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        752,
+        48
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GkYdU44mPHF1bBG9",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        48
+      ],
+      "id": "9f312173-70c3-4dca-baa1-c8acd99efcec",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.unipile.com/v2/YOUR_UNIPILE_ACCOUNT_ID/users/me/relation-requests/{{ $json.id }}/accept",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1088,
+        48
+      ],
+      "id": "4fbdcab0-5df1-4474-a928-6b47ade0a78e",
+      "name": "HTTP Request1",
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GkYdU44mPHF1bBG9",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "faff5bc5-c7d2-4433-b381-c5535eb973f8",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        288
+      ],
+      "id": "6e4abea1-9637-4c8d-805a-110d0971eb9b",
+      "name": "Webhook",
+      "webhookId": "faff5bc5-c7d2-4433-b381-c5535eb973f8"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        288
+      ],
+      "id": "f0be83b6-a1fa-4db6-b8ac-e5b77301b559",
+      "name": "Wait",
+      "webhookId": "3f8bc1bf-74cb-483b-93b4-fda6966900a0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.unipile.com/v2/YOUR_UNIPILE_ACCOUNT_ID/chats/{{ $node[\"Webhook\"].json.body.payload.chat_id }}/messages/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "quote_id",
+              "value": "={{ $('Webhook').item.json.body.payload.id }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1216,
+        288
+      ],
+      "id": "bc5b3557-1fb6-4640-a830-bad0fe67ff95",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GkYdU44mPHF1bBG9",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4b79dc94-86a2-4a51-a4d9-6c343833dcff",
+              "leftValue": "={{ $json.body.payload.is_sender }}",
+              "rightValue": "false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        288
+      ],
+      "id": "58cc48d1-2220-4a48-9890-1e6a0dd1cda1",
+      "name": "Filter",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sender Name: {{ $json.body.payload.sender.display_name }}\nSender Headline: {{ $json.body.payload.sender.description }}\nIncoming Message: \"{{ $json.body.payload.text }}\"",
+        "options": {
+          "systemMessage": "=You are replying to incoming LinkedIn direct messages on my behalf.\nKeep replies concise (1 to 3 sentences), natural, warm, and professional.\nAddress the sender by their first name ({{ $json.body.payload.sender.display_name }}).\nNever use robotic placeholders, hashtags, or overly formal sign-offs like \"Best regards\".\nOutput ONLY the message reply text itself, with no surrounding quotation marks."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        880,
+        288
+      ],
+      "id": "b080ea92-11b1-46ce-b588-ed1f5cb85a98",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        496
+      ],
+      "id": "ac21ce4d-43d2-4cba-9881-7f86fd411bbe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour",
+              "minute": 10
+            }
+          ]
+        },
+        "filters": {
+          "q": "from:(invitations@linkedin.com OR messages-noreply@linkedin.com) (\"wants to connect\" OR \"invitation\")"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        400,
+        48
+      ],
+      "id": "c183d047-47fa-4b72-99d8-de2a3b329c61",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KB2CPCUl6GTXPNFW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 5) + 2 }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        48
+      ],
+      "id": "59fc3aaf-bc02-4e22-8c9c-05670d262d6e",
+      "name": "Wait1",
+      "webhookId": "7671412f-5e1f-4e1f-9de2-04710dd9dd4e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b9fa759b-956d-4a10-9dd7-7c5d6c1b212a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7b1bdfc87abb09f5b01c49ca8e0882d5e555730f69a4de7d046cb7300f3d8564"
+  },
+  "nodeGroups": [],
+  "id": "pieEaTjBFiMurKFz",
+  "tags": []
+}
